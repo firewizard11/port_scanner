@@ -22,4 +22,8 @@ def test_port(host: str, port: int) -> None:
         except:
             print(f'Connection Failed with {host}:{port}')
 
-test_port(host, port)
+def validate_port_number(port: int) -> bool:
+    if isinstance(port, int) and (1 <= port <= 65535):
+        return True
+    else:
+        return False
