@@ -1,6 +1,7 @@
 import socket
 import argparse
-from typing import Set
+import threading
+from typing import Set, List
 
 def test_port(host: str, port: int, verbose: bool = False) -> None:
     """ Test whether a given port on a host is able to be connected to
@@ -106,5 +107,11 @@ if __name__ == '__main__':
 
     ports = format_ports(args.ports)
  
+    threads: List[threading.Thread] = []
     for port in ports:
-        test_port(host, port, True)
+        thread = threading.Thread(target=test_port, args=(host, port))
+        thread.start()
+        threads.append(thread)
+
+    for thread in threads:
+        thread.join()
