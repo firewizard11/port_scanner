@@ -1,5 +1,6 @@
 import socket
-
+import argparse
+from typing import Set
 
 def test_port(host: str, port: int, verbose: bool = False) -> None:
     """ Test whether a given port on a host is able to be connected to
@@ -53,16 +54,57 @@ def validate_ipv4(ip_addr: str) -> bool:
         
     return True
 
-if __name__ == '__main__':
-    host = '10.10.14.80'
-    ports = [80, 443, 21, 22, 139, 445]
 
+def format_ports(i_ports: str) -> Set[int]:
+    f_ports = set()
+
+    # Comma-Sep Format (E.g. 1,2,3,4)
+    if ',' in i_ports:
+        m_ports = i_ports.split(',')
+        for port in m_ports:
+            if port.isdecimal() and validate_port_number(int(port)):
+                f_ports.add(int(port))
+            else:
+                raise ValueError(f'{i_ports} is invalid')
+        
+        return f_ports
+    
+    # Range Format (i.e. Start-End (inclusive))
+    if '-' in i_ports:
+        m_ports = i_ports.split('-')
+        if len(m_ports) > 2:
+            raise ValueError(f'{i_ports} is invalid')
+        
+        if not (m_ports[0].isdecimal() and validate_port_number(int(m_ports[0]))):
+            raise ValueError(f'{i_ports} is invalid')
+        
+        if not (m_ports[1].isdecimal() and validate_port_number(int(m_ports[1]))):
+            raise ValueError(f'{i_ports} is invalid')
+        
+        f_ports = set(range(int(m_ports[0]), int(m_ports[1]) + 1))
+        
+        return f_ports
+    
+    # Single Port
+    if i_ports.isdecimal():
+        port = int(i_ports)
+        if validate_port_number(port):
+            return {port}
+        else:
+            raise ValueError(f'{i_ports} is invalid')
+
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    parser.add_argument('host')
+    parser.add_argument('ports')
+    args = parser.parse_args()
+
+    host = args.host
     if not validate_ipv4(host):
         raise ValueError(f'{host} is not a valid IPv4 address')
 
+    ports = format_ports(args.ports)
+ 
     for port in ports:
-        if not validate_port_number(port):
-            raise ValueError(f'{port} is not a valid Port Number')
-        
-    for port in ports:
-        test_port(host, port)
+        test_port(host, port, True)
