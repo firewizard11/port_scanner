@@ -1,10 +1,7 @@
 import socket
 
-host = '151.101.192.223'
-port = 80
 
-
-def test_port(host: str, port: int) -> None:
+def test_port(host: str, port: int, verbose: bool = False) -> None:
     """ Test whether a given port on a host is able to be connected to
     
     Args:
@@ -21,7 +18,8 @@ def test_port(host: str, port: int) -> None:
             sock.connect((host, port))
             print(f'Connection Succeeded with {host}:{port}')
         except:
-            print(f'Connection Failed with {host}:{port}')
+            if verbose:
+                print(f'Connection Failed with {host}:{port}')
 
 
 def validate_port_number(port: int) -> bool:
@@ -54,3 +52,17 @@ def validate_ipv4(ip_addr: str) -> bool:
             return False
         
     return True
+
+if __name__ == '__main__':
+    host = '10.10.14.80'
+    ports = [80, 443, 21, 22, 139, 445]
+
+    if not validate_ipv4(host):
+        raise ValueError(f'{host} is not a valid IPv4 address')
+
+    for port in ports:
+        if not validate_port_number(port):
+            raise ValueError(f'{port} is not a valid Port Number')
+        
+    for port in ports:
+        test_port(host, port)
