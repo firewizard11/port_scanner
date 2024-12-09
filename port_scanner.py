@@ -98,12 +98,28 @@ def format_ports(i_ports: str) -> Set[int]:
             raise ValueError(f'{i_ports} is invalid')
 
 
+def sequential_scan(host: str, ports: Set[int]) -> None:
+    for port in ports:
+        test_port(host, port)
+
+
+def threaded_scan(host: str, ports: Set[int]) -> None:
+    threads: List[threading.Thread] = []
+
+    for port in ports:
+        thread = threading.Thread(target=test_port, args=(host, port))
+        thread.start()
+        threads.append(thread)
+
+    for thread in threads:
+        thread.join()
+
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('host')
     parser.add_argument('ports')
-    parser.add_argument('--verbose', '-v',action='store_true', required=False)
-    parser.add_argument('threaded', '-t', action='store_true', required=False)
+    parser.add_argument('--threaded', '-t', action='store_true')
     args = parser.parse_args()
 
     host = args.host
@@ -111,13 +127,9 @@ if __name__ == '__main__':
         raise ValueError(f'{host} is not a valid IPv4 address')
 
     ports = format_ports(args.ports)
-    verbose = args.verbose
- 
-    threads: List[threading.Thread] = []
-    for port in ports:
-        thread = threading.Thread(target=test_port, args=(host, port, verbose))
-        thread.start()
-        threads.append(thread)
+    threaded = args.threaded
 
-    for thread in threads:
-        thread.join()
+    if threaded:
+        threaded_scan(host, ports)
+    else:
+        sequential_scan(host, ports)
