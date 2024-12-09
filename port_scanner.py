@@ -9,7 +9,6 @@ def test_port(host: str, port: int, verbose: bool = False) -> None:
     Args:
     - host (str): The IPv4 address of the target host
     - port (int): A valid port number
-    - verbose (bool): Whether or not we should output failed connections (Default = False)
 
     Output:
     - Will Output the result of the connection
@@ -26,6 +25,7 @@ def test_port(host: str, port: int, verbose: bool = False) -> None:
 
 
 def validate_port_number(port: int) -> bool:
+    # Check if port is an integer and is in the valid port number range
     if isinstance(port, int) and (1 <= port <= 65535):
         return True
     else:
