@@ -9,6 +9,7 @@ def test_port(host: str, port: int, verbose: bool = False) -> None:
     Args:
     - host (str): The IPv4 address of the target host
     - port (int): A valid port number
+    - verbose (bool): Whether or not we should output failed connections (Default = False)
 
     Output:
     - Will Output the result of the connection
@@ -32,6 +33,7 @@ def validate_port_number(port: int) -> bool:
 
 
 def validate_ipv4(ip_addr: str) -> bool:
+    # '.' Must be in a valid IPv4
     if not isinstance(ip_addr, str) or ('.' not in ip_addr):
         return False
     
@@ -57,6 +59,7 @@ def validate_ipv4(ip_addr: str) -> bool:
 
 
 def format_ports(i_ports: str) -> Set[int]:
+    # I chose a set since there should be only unique port numbers
     f_ports = set()
 
     # Comma-Sep Format (E.g. 1,2,3,4)
@@ -99,6 +102,8 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('host')
     parser.add_argument('ports')
+    parser.add_argument('--verbose', '-v',action='store_true', required=False)
+    parser.add_argument('threaded', '-t', action='store_true', required=False)
     args = parser.parse_args()
 
     host = args.host
@@ -106,10 +111,11 @@ if __name__ == '__main__':
         raise ValueError(f'{host} is not a valid IPv4 address')
 
     ports = format_ports(args.ports)
+    verbose = args.verbose
  
     threads: List[threading.Thread] = []
     for port in ports:
-        thread = threading.Thread(target=test_port, args=(host, port))
+        thread = threading.Thread(target=test_port, args=(host, port, verbose))
         thread.start()
         threads.append(thread)
 
