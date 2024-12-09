@@ -131,10 +131,6 @@ if __name__ == '__main__':
     threaded = args.threaded
     verbose = args.verbose
 
-    print(verbose, type(verbose))
-    print(threaded, type(threaded))
-
-
     if threaded:
         print(f'Starting threaded scan on {host}')
         threaded_scan(host, ports, verbose)
