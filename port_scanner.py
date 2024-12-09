@@ -98,16 +98,16 @@ def format_ports(i_ports: str) -> Set[int]:
             raise ValueError(f'{i_ports} is invalid')
 
 
-def sequential_scan(host: str, ports: Set[int]) -> None:
+def sequential_scan(host: str, ports: Set[int], verbose) -> None:
     for port in ports:
         test_port(host, port)
 
 
-def threaded_scan(host: str, ports: Set[int]) -> None:
+def threaded_scan(host: str, ports: Set[int], verbose) -> None:
     threads: List[threading.Thread] = []
 
     for port in ports:
-        thread = threading.Thread(target=test_port, args=(host, port))
+        thread = threading.Thread(target=test_port, args=(host, port, verbose))
         thread.start()
         threads.append(thread)
 
@@ -120,6 +120,7 @@ if __name__ == '__main__':
     parser.add_argument('host')
     parser.add_argument('ports')
     parser.add_argument('--threaded', '-t', action='store_true')
+    parser.add_argument('--verbose', '-v', action='store_true')
     args = parser.parse_args()
 
     host = args.host
@@ -128,8 +129,15 @@ if __name__ == '__main__':
 
     ports = format_ports(args.ports)
     threaded = args.threaded
+    verbose = args.verbose
+
+    print(verbose, type(verbose))
+    print(threaded, type(threaded))
+
 
     if threaded:
-        threaded_scan(host, ports)
+        print(f'Starting threaded scan on {host}')
+        threaded_scan(host, ports, verbose)
     else:
-        sequential_scan(host, ports)
+        print(f'Starting sequential scan on {host}')
+        sequential_scan(host, ports, verbose)
